@@ -82,5 +82,9 @@ compileQuerydsl {
 }
 //querydsl 추가 끝
 
-
 ```
+
+```bash
+$ {projectDir}/gradlew clean
+$ {projectDir}/gradlew compileQuerydsl
+````
