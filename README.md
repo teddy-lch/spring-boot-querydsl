@@ -1,3 +1,14 @@
+# Spring Boot JPA Querydsl Study Proejct
+
+---
+
+### 스프링 부트 2.6 이상, Querydsl 5.0 설정 방법
+
+- `buildscript` 버전 추가
+- `plugins` querydsl 플러그인 추가
+- `dependencies` querydsl-jpa, querydsl-apt 추가
+
+```gradle
 buildscript {
 	ext {
 		queryDslVersion = "5.0.0"
@@ -70,3 +81,6 @@ compileQuerydsl {
 	options.annotationProcessorPath = configurations.querydsl
 }
 //querydsl 추가 끝
+
+
+```
