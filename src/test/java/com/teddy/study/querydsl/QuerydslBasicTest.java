@@ -2,10 +2,13 @@ package com.teddy.study.querydsl;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.teddy.study.querydsl.dto.MemberDto;
+import com.teddy.study.querydsl.dto.QMemberDto;
 import com.teddy.study.querydsl.entity.Member;
 import com.teddy.study.querydsl.entity.QMember;
 import com.teddy.study.querydsl.entity.QTeam;
@@ -412,5 +415,77 @@ public class QuerydslBasicTest {
 
     }
 
+    @Test
+    public void findDtoBySetter() throws Exception {
+        // given
+        List<MemberDto> result = queryFactory
+                .select(Projections.bean(MemberDto.class, // dto의 setter 메소드로 주입
+                        member.username,
+                        member.age
+                ))
+                .from(member)
+                .fetch();
+
+        // When
+        result.stream().forEach(r -> System.out.println("result : " + r));
+
+        // Then
+
+    }
+    @Test
+    public void findDtoByField() throws Exception {
+        // given
+        List<MemberDto> result = queryFactory
+                .select(Projections.fields(MemberDto.class, // dto의 field 에 주입
+                        member.username,
+                        member.age
+                ))
+                .from(member)
+                .fetch();
+
+        // When
+        result.stream().forEach(r -> System.out.println("result : " + r));
+
+        // Then
+
+    }
+
+    @Test
+    public void findDtoByConstructor() throws Exception {
+        // given
+        List<MemberDto> result = queryFactory
+                .select(Projections.constructor(MemberDto.class, // dto의 생성자 에 주입 (순서가 맞아야함)
+                        member.username,
+                        member.age
+                ))
+                .from(member)
+                .fetch();
+
+        // When
+        result.stream().forEach(r -> System.out.println("result : " + r));
+
+        // Then
+
+    }
+
+    @Test
+    public void findBtoByQueryProjection() throws Exception {
+        // given
+
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(
+                        member.username,
+                        member.age
+                ))
+                .from(member)
+                .fetch();
+
+        result.stream().forEach(r -> System.out.println("result : " + r));
+
+        // When
+
+        // Then
+
+    }
 
 }
