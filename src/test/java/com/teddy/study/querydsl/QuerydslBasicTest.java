@@ -1,8 +1,11 @@
 package com.teddy.study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -481,6 +485,173 @@ public class QuerydslBasicTest {
                 .fetch();
 
         result.stream().forEach(r -> System.out.println("result : " + r));
+
+        // When
+
+        // Then
+
+    }
+
+    @Test
+    public void dynamic_query_booleanbuilder() throws Exception {
+        // given
+        String username = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = serachMemeber1(username, ageParam);
+
+        // When
+
+        // Then
+
+    }
+
+    private List<Member> serachMemeber1(String username, Integer ageParam) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (username != null) {
+            builder.and(member.username.eq(username));
+        }
+        if (ageParam != null) {
+            builder.and(member.age.eq(ageParam));
+        }
+
+        return queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
+
+    @Test
+    public void dynamic_query_where() throws Exception {
+        // given
+        String username = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = serachMemeber2(username, ageParam);
+
+        // When
+
+        // Then
+
+    }
+
+    private List<Member> serachMemeber2(String username, Integer ageParam) {
+        return queryFactory
+                .selectFrom(member)
+//                .where(usernameEq(username), ageEq(ageParam))
+                .where(allEq(username, ageParam))
+                .fetch();
+    }
+
+    private BooleanExpression usernameEq(String username) {
+        if (username == null) {
+            return  null;
+        }
+        return member.username.eq(username);
+    }
+
+    private BooleanExpression ageEq(Integer ageParam) {
+        if (ageParam == null) {
+            return null;
+        }
+        return member.age.eq(ageParam);
+    }
+
+    private BooleanExpression allEq(String username, Integer age) {
+        return usernameEq(username).and(ageEq(age));
+    }
+
+    @Test
+    public void bulkUpdate() throws Exception {
+        // given
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        // When
+        // 벌크 처리시 DB에 바로 적용되어 영속성 컨텍스트 랑 다름 -> 해결하려면 em.flush() em.clear() 로 클리어 후 진행해야함.
+        em.flush();
+        em.clear();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member : result) {
+            System.out.println("member : " + member);
+        }
+        // Then
+
+    }
+
+    @Test
+    public void bulkAdd() throws Exception {
+        // given
+        queryFactory
+                .update(member)
+//                .set(member.age, member.age.add(1))
+                .set(member.age, member.age.multiply(2))
+                .execute();
+
+        // When
+
+        // Then
+
+    }
+
+    @Test
+    public void bulkDelete() throws Exception {
+        // given
+
+        queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+
+        // When
+
+        // Then
+
+    }
+
+    @Test
+    public void sqlFunction() throws Exception {
+        // given
+
+        List<String> result = queryFactory
+                .select(Expressions.stringTemplate(
+                        "function('replace', {0}, {1}, {2})"
+                        , member.username, "member", "M"))
+                .from(member)
+                .fetch();
+
+        // When
+        for (String member : result) {
+            System.out.println("member : " + member);
+        }
+
+        // Then
+
+    }
+
+    @Test
+    public void sqlFunction2() throws Exception {
+        // given
+
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+                .where(
+//                        member.username.eq(Expressions.stringTemplate("function('lower', {0})", member.username)))
+                        member.username.eq(member.username.lower()))
+                .fetch();
+
+        for (String member : result) {
+            System.out.println("member : " + member);
+        }
 
         // When
 
