@@ -3,6 +3,7 @@ package com.teddy.study.querydsl.repository;
 import com.teddy.study.querydsl.dto.MemberSearchCondition;
 import com.teddy.study.querydsl.dto.MemberTeamDto;
 import com.teddy.study.querydsl.entity.Member;
+import com.teddy.study.querydsl.entity.QMember;
 import com.teddy.study.querydsl.entity.Team;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.teddy.study.querydsl.entity.QMember.member;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -105,6 +107,17 @@ class MemberRepositoryTest {
 
         assertThat(result.getSize()).isEqualTo(3);
         assertThat(result.getContent()).extracting("username").containsExactly("member1", "member2", "member3");
+
+        // Then
+
+    }
+
+    @Test
+    public void querydslPredicateExecutor() throws Exception {
+        // given
+        Iterable<Member> result = memberRepository.findAll(member.age.between(20, 40));
+
+        // When
 
         // Then
 
